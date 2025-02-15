@@ -1,4 +1,4 @@
-FROM        --platform=$TARGETOS/$TARGETARCH rust:1.56-slim
+FROM        --platform=$TARGETOS/$TARGETARCH rust:1.56.1-slim
 
 LABEL       author="Ethan Coward" maintainer="ethan.coward@icloud.com"
 
