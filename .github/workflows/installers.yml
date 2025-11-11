@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   push:
-    name: "installers:{{ matrix.tag }}"
+    name: "installers:${{ matrix.tag }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -22,8 +22,9 @@ jobs:
           - alpine
           - debian
           - ubuntu
-          - "java/8"
-          - "java/17"
+          - java_17
+          - java_8
+
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-qemu-action@v3
@@ -39,10 +40,16 @@ jobs:
           registry: ghcr.io
           username: ${{ steps.lower-repo.outputs.repository }}
           password: ${{ secrets.REGISTRY_TOKEN || secrets.GITHUB_TOKEN }}
+      - name: Set Dockerfile path
+        id: dockerfile
+        run: |
+          echo "DOCKERFILE_PATH=./installers/${GITHUB_MATRIX_TAG//_//}/Dockerfile" >> $GITHUB_ENV
+        env:
+          GITHUB_MATRIX_TAG: ${{ matrix.tag }}
       - uses: docker/build-push-action@v6
         with:
           context: ./installers
-          file: ./installers/${{ matrix.tag }}/Dockerfile
+          file: ${{ env.DOCKERFILE_PATH }}
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
